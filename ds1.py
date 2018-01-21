@@ -3,13 +3,17 @@
 import time
 import os
 import re
-import urllib
+#import urllib
 import sys
+import thingspeak
 
 ds_dir = "/sys/bus/w1/devices/"
 label = "28-"
 file_with_data = "w1_slave"
 TO_SITE = "https://api.thingspeak.com/update?api_key=FH60O3MXLM2126T1&field1="
+WRITE_KEY = "FH60O3MXLM2126T1"
+CHANNEL_ID = "404660"
+
 
 #crc\=\b
 
@@ -28,9 +32,8 @@ def DecodeFile(file):
 				print(temp1," ",int(temp1,16))
 				temp2 = int(temp1,16)+int(tab_ds[0][1],16)/16.
 				print(str(temp2))
-				#params = urllib.parse.urlencode({'key': 'FH60O3MXLM2126T1', 'field1': str(temp2)})
-				#f = urllib.request.urlopen("https://api.thingspeak.com/update", data=params)
-				f=urllib.request.urlopen("https://api.thingspeak.com/update?api_key=FH60O3MXLM2126T1&field1="+str(temp2))
+				ch1.update({"field1":temp2})
+
 
 		#if "crc=" in line:
 			
@@ -53,7 +56,7 @@ for folder in tab_sensors:
 		line = file.readline()
 	file.close()	
 	
-
+ch1 =  thingspeak.Channel(id=CHANNEL_ID,write_key=WRITE_KEY)
 
 while(1):
 	for folder in tab_sensors:
