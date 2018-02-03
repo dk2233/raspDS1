@@ -13,7 +13,7 @@ file_with_data = "w1_slave"
 TO_SITE = "https://api.thingspeak.com/update?api_key=FH60O3MXLM2126T1&field1="
 WRITE_KEY = "FH60O3MXLM2126T1"
 CHANNEL_ID = "404660"
-
+HOW_OFTEN = 10
 
 #crc\=\b
 
@@ -32,8 +32,10 @@ def DecodeFile(file):
 				print(temp1," ",int(temp1,16))
 				temp2 = int(temp1,16)+int(tab_ds[0][1],16)/16.
 				print(str(temp2))
-				ch1.update({"field1":temp2})
-
+				try:
+					ch1.update({"field1":temp2})
+				except:
+					time.sleep(0.1)
 
 		#if "crc=" in line:
 			
@@ -50,6 +52,7 @@ for folder in tab_sensors:
 		continue
 	
 	file = open(ds_dir+folder+os.sep+file_with_data)
+		
 	line = file.readline()
 	while line:
 		#print( line)
@@ -62,11 +65,14 @@ while(1):
 	for folder in tab_sensors:
 		if not label in folder:
 			continue
-		
-		file = open(ds_dir+folder+os.sep+file_with_data)
+		try:
+			file = open(ds_dir+folder+os.sep+file_with_data)
+		except:
+			print("problem with file ")
+			time.sleep(0.1)	
 		DecodeFile(file)
 		file.close()	
 	print("-"*20)
-	time.sleep(10)
+	time.sleep(HOW_OFTEN)
 
 
