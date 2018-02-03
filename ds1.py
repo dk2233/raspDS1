@@ -10,14 +10,14 @@ import thingspeak
 ds_dir = "/sys/bus/w1/devices/"
 label = "28-"
 file_with_data = "w1_slave"
-TO_SITE = "https://api.thingspeak.com/update?api_key=FH60O3MXLM2126T1&field1="
+TO_SITE = "https://api.thingspeak.com/update?api_key=FH60O3MXLM2126T1&field"
 WRITE_KEY = "FH60O3MXLM2126T1"
 CHANNEL_ID = "404660"
-HOW_OFTEN = 10
+HOW_OFTEN = 60
 
 #crc\=\b
-
-def DecodeFile(file):
+dict_temp = {}
+def DecodeFile(file,nr):
 	line = file.readline()
 	while line:
 		tab = re.findall("crc\="+r'([0-9|a-f]{2})\s+(\w*)',line)
@@ -32,10 +32,9 @@ def DecodeFile(file):
 				print(temp1," ",int(temp1,16))
 				temp2 = int(temp1,16)+int(tab_ds[0][1],16)/16.
 				print(str(temp2))
-				try:
-					ch1.update({"field1":temp2})
-				except:
-					time.sleep(0.1)
+				field="field"+str(nr)
+				print(field)
+				dict_temp[field]=temp2
 
 		#if "crc=" in line:
 			
@@ -62,6 +61,8 @@ for folder in tab_sensors:
 ch1 =  thingspeak.Channel(id=CHANNEL_ID,write_key=WRITE_KEY)
 
 while(1):
+	nr_ds = 1
+	dict_temp = {}
 	for folder in tab_sensors:
 		if not label in folder:
 			continue
@@ -70,8 +71,18 @@ while(1):
 		except:
 			print("problem with file ")
 			time.sleep(0.1)	
-		DecodeFile(file)
+			continue
+		DecodeFile(file,nr_ds)
 		file.close()	
+		nr_ds +=1
+		
+		
+	try:
+		ch1.update(dict_temp)
+	except:
+		print("problem sending ",field)
+		
+	time.sleep(0.1)	
 	print("-"*20)
 	time.sleep(HOW_OFTEN)
 
