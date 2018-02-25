@@ -29,8 +29,14 @@ def DecodeFile(file,nr):
 				tab_ds=re.findall(r'[0-9|a-f]{2}',line)
 				print(tab_ds)
 				temp1 = tab_ds[1] + tab_ds[0][0]
-				print(temp1," ",int(temp1,16))
-				temp2 = int(temp1,16)+int(tab_ds[0][1],16)/16.
+				print(temp1," wartosc jednosci ",int(temp1,16))
+				var_temp = int(temp1,16)
+				
+				if var_temp > 150:
+					temp1 = var_temp - 4095.0
+					temp2 = temp1 - (16 - int(tab_ds[0][1],16))/16.
+				else:
+					temp2 = int(temp1,16)+int(tab_ds[0][1],16)/16.
 				print(str(temp2))
 				field="field"+str(nr)
 				print(field)
@@ -80,9 +86,9 @@ while(1):
 	try:
 		ch1.update(dict_temp)
 	except:
-		print("problem sending ",field)
+		print("problem sending ",dict_temp)
 		
-	time.sleep(0.1)	
+		time.sleep(0.1)	
 	print("-"*20)
 	time.sleep(HOW_OFTEN)
 
